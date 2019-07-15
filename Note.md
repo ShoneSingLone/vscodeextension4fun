@@ -29,4 +29,36 @@ let disposable = vscode.commands.registerCommand('extension.Shone.sing.lone',fun
   - 核心功能
 
 ---
-![](./doc/code.png)
+## Webview API
+
+[webview](https://code.visualstudio.com/api/extension-guides/webview)
+
+在vs code内完全可自定的user interface；
+complex也可以。可以理解为有完全操作权限的iframe(＾＿－)。除了HTML 能干的，还能通过message passing与extensions通信
+incredibly令人难以置信的powerful。
+
+虽然强大，但是不要放肆，要sparingly保守使用。
+
+1. 非要加进来，独立出去行不行？
+1. 现有的API满足不了？
+1. 是不是家里有矿，随便造作？
+
+```js
+// Create and show a new webview
+const panel = vscode.window.createWebviewPanel(
+    'catCoding', // Identifies the type of the webview. Used internally
+    'Cat Coding', // Title of the panel displayed to the user
+    vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+    {} // Webview options. More on these later.
+);
+        
+```
+
+```js
+
+// And set its HTML content
+panel.webview.html = getWebviewContent();
+
+```
+should always be complate HTML **NOT** HTML fragments or malformed HTML
+
