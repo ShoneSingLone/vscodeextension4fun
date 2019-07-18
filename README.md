@@ -1,65 +1,66 @@
-# gkcomponents README
+# 搞个小玩意儿 make a toy
 
-This is the README for your extension "gkcomponents". After writing up a brief description, we recommend including the following sections.
+- [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
+- [中文辅导理解](https://www.cnblogs.com/caipeiyu/p/5507252.html)
 
-## Features
+basic and important
+in package.json  that
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+```js
+    "activationEvents": [
+        "onCommand:extension.Shone.sing.lone"//监听commoand 如果是extension.Shone.sing.lone
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "commands": [{
+            "command": "extension.Shone.sing.lone",// 触发command
+            "title": "Shone"//panel 控制面板输入
+        }]
+    },
+    ...
+    /* 注册，可以理解为[【事件】 =>callback function]调用各种API */
+let disposable = vscode.commands.registerCommand('extension.Shone.sing.lone',function(){})
 
-For example if there is an image subfolder under your extension project workspace:
+```
 
-\!\[feature X\]\(images/feature-x.png\)
+- [extension-capabilities overview](https://code.visualstudio.com/api/extension-capabilities/overview):
+  - extension,能干嘛
+  - 主要分类
+  - 核心功能
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+---
 
-## Requirements
+## Webview API
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+[webview](https://code.visualstudio.com/api/extension-guides/webview)
 
-## Extension Settings
+在vs code内完全可自定的user interface；
+complex也可以。可以理解为有完全操作权限的iframe(＾＿－)。除了HTML 能干的，还能通过message passing与extensions通信
+incredibly令人难以置信的powerful。
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+虽然强大，但是不要放肆，要sparingly保守使用。
 
-For example:
+1. 非要加进来，独立出去行不行？
+1. 现有的API满足不了？
+1. 是不是家里有矿，闲着没事非要造作？
 
-This extension contributes the following settings:
+```js
+// Create and show a new webview添加一个webview
+const panel = vscode.window.createWebviewPanel(
+    'catCoding', // Identifies the type of the webview. Used internally
+    'Cat Coding', // Title of the panel displayed to the user
+    vscode.ViewColumn.One, // Editor column to show the new webview panel in.
+    {} // Webview options. More on these later.
+);
+```
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+```js
+// And set its HTML content
+panel.webview.html = getWebviewContent();
+panel.title = "panelTitle";
+panel.dispose()//programmatically close webviews
+```
 
-## Known Issues
+>should always be complate HTML **NOT** HTML fragments or malformed HTML
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+**watch out!:** 因为 `panel.webview.html` 就是一个完整的`iframe`，如果给`panel.webview.html`重新赋值，就相当于刷新`iframe`，那么js里的各种状态当然也就荡然无存了。

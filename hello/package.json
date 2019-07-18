@@ -14,10 +14,12 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
-		"commands": [{
-			"command": "extension.Shone.sing.lone",
-			"title": "Shone"
-		}]
+		"commands": [
+			{
+				"command": "extension.Shone.sing.lone",
+				"title": "Shone"
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "yarn run compile",
@@ -27,10 +29,15 @@
 		"test": "yarn run compile && node ./node_modules/vscode/bin/test"
 	},
 	"devDependencies": {
-		"typescript": "^3.3.1",
-		"vscode": "^1.1.28",
-		"tslint": "^5.12.1",
+		"@types/mocha": "^2.2.42",
 		"@types/node": "^10.12.21",
-		"@types/mocha": "^2.2.42"
+		"base64-img": "^1.0.4",
+		"tslint": "^5.12.1",
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28"
+	},
+	"dependencies": {
+		"@types/pug": "^2.0.4",
+		"pug": "^2.0.4"
 	}
 }
