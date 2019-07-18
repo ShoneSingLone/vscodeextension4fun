@@ -2,7 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { promises as fs } from 'fs';
-import { resolve } from 'path';
+import { resolve, join } from 'path';
 import { compile as PugCompile } from 'pug';
 
 
@@ -14,11 +14,19 @@ async function getImg(name: string) {
 export async function activate(context: vscode.ExtensionContext) {
 	let imgCoding = await getImg('Coding.webp');
 	let imgCompiling = await getImg('Compiling.webp');
-	const cats = { 'Compiling Cat': imgCompiling, 'Coding Cat': imgCoding };
-	
+	const cats = {
+		'Compiling Cat': imgCompiling,
+		'Coding Cat': imgCoding,
+		'Testing Cat': 'https://media.giphy.com/media/3oriO0OEd9QIDdllqo/giphy.gif'
+	};
+
 	// Track currently webview panel
-	let currentPanel: vscode.WebviewPanel | undefined = undefined;
-	
+	let currentPanel: vscode.WebviewPanel;
+	let isCurrentPanelDidDispose = true
+	let columnToShowIn = vscode.window.activeTextEditor
+		? vscode.window.activeTextEditor.viewColumn
+		: undefined;
+
 	// Use the console to output diagnostic information (console.log) and errors (console.error)
 	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "hello" is now active!');
@@ -29,71 +37,131 @@ export async function activate(context: vscode.ExtensionContext) {
 	// /* registerCommand Lifecycle onDidDispose 处理垃圾回收 */
 	let disposable = vscode.commands.registerCommand('extension.Shone.sing.lone', async () => {
 		// The code you place here will be executed every time your command is executed
-
 		// Display a message box to the user
 		vscode.window.showInformationMessage('Hello World!');
 
-		// Create and show a new webview
-		const panel = vscode.window.createWebviewPanel(
-			'catCoding', // Identifies the type of the webview. Used internally
-			'Cat Coding', // Title of the panel displayed to the user
-			vscode.ViewColumn.One, // Editor column to show the new webview panel in.
-			{} // Webview options. More on these later.
-		);
+		if (!isCurrentPanelDidDispose) {
+			// If we already have a panel, show it in the target column
+			currentPanel.reveal(2);
+		} else {
+			// Otherwise, create a new panel
+			currentPanel = vscode.window.createWebviewPanel(
+				'catCoding',
+				'Cat Coding',
+				columnToShowIn || vscode.ViewColumn.One,
+				{
+					// Enable scripts in the webview
+					enableScripts: true
+				}
+			);
+			isCurrentPanelDidDispose = false
 
+			/* production cache */
+			// let pugContent = await fs.readFile(resolve(__dirname, "./content.pug"), "utf8");
+			async function getWebviewContent(cat: keyof typeof cats) {
+				/* dev */
+				let pugContent = await fs.readFile(resolve(__dirname, "./content.pug"), "utf8");
 
+				/*  */
+				// Get path to resource on disk
+				const onDiskPath = vscode.Uri.file(
+					join(context.extensionPath, 'README.md')
+				);
 
-		/* production cache */
-		// let pugContent = await fs.readFile(resolve(__dirname, "./content.pug"), "utf8");
-		async function getWebviewContent(cat: keyof typeof cats) {
-			/* dev */
-			let pugContent = await fs.readFile(resolve(__dirname, "./content.pug"), "utf8");
-			let pugData = cats[cat];
-			let pugScriptJQuery = await fs.readFile(resolve(__dirname, "./js/jquery.js"), "utf8");
-			let pugScriptMain = await fs.readFile(resolve(__dirname, "./js/main.js"), "utf8");
-			let pugHTMLString = PugCompile(pugContent)({ imgSrc: pugData })
-			pugHTMLString = pugHTMLString.replace("##jquery##", pugScriptJQuery).replace("##main##", pugScriptMain)
-			return pugHTMLString;
-		}
-		/*  */
-		let iteration = 0;
-		const updateWebview = async () => {
-			const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
-			panel.title = cat;
-			panel.webview.html = await getWebviewContent(cat);
-			console.log(panel.webview.html);
-			// Handle messages from the webview
-			panel.webview.onDidReceiveMessage(
-				message => {
-					switch (message.command) {
-						case 'alert':
-							vscode.window.showErrorMessage(message.text);
+				// And get the special URI to use with the webview
+				const catGifSrc = onDiskPath.with({ scheme: 'vscode-resource' });
+				console.log('catGifSrc', catGifSrc);
+
+				let pugData = cats[cat];
+				let pugScriptJQuery = await fs.readFile(resolve(__dirname, "./js/jquery.js"), "utf8");
+				let pugScriptMain = await fs.readFile(resolve(__dirname, "./js/main.js"), "utf8");
+				let pugHTMLString = PugCompile(pugContent)({ imgSrc: pugData })
+				pugHTMLString = pugHTMLString.replace("##jquery##", pugScriptJQuery).replace("##main##", pugScriptMain)
+				return pugHTMLString;
+			}
+
+			async function updateWebviewForCat(panel: vscode.WebviewPanel, catName: keyof typeof cats) {
+				panel.title = catName;
+				panel.webview.html = await getWebviewContent(catName);
+			}
+			/*  */
+			let iteration = 0;
+			const updateWebview = async () => {
+				const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
+				currentPanel.title = cat;
+				currentPanel.webview.html = await getWebviewContent(cat);
+
+				// Handle messages from the webview
+				interface StrategyMap {
+					[prop: string]: (message: any) => any
+				}
+				const strategyhandleReceiveMessage: StrategyMap = {
+					alert: (message: any) => {
+						vscode.window.showErrorMessage(message.text);
+					},
+					closePanel: (message: any) => {
+						currentPanel.dispose();
+					}
+				}
+
+				currentPanel.webview.onDidReceiveMessage(
+					message => {
+						const fn = strategyhandleReceiveMessage[message.command];
+						fn && fn(message);
+					},
+					undefined,
+					context.subscriptions
+				);
+			};
+			// Set initial content
+			updateWebview();
+			// Update contents based on view state changes
+			currentPanel.onDidChangeViewState(
+				e => {
+					const panel = e.webviewPanel;
+					switch (panel.viewColumn) {
+						case vscode.ViewColumn.One:
+							updateWebviewForCat(panel, 'Coding Cat');
+							return;
+
+						case vscode.ViewColumn.Two:
+							updateWebviewForCat(panel, 'Compiling Cat');
+							return;
+
+						case vscode.ViewColumn.Three:
+							updateWebviewForCat(panel, 'Testing Cat');
 							return;
 					}
 				},
-				undefined,
+				null,
 				context.subscriptions
 			);
-		};
-		// Set initial content
-		updateWebview();
-		// And schedule updates to the content every second
-		// let interval = setInterval(updateWebview, 1000 * 3);
 
-		panel.onDidDispose(
-			(event) => {
-				console.log("onDidDispose", event);
-				// When the panel is closed, cancel any future updates to the webview content
-				vscode.window.showInformationMessage(`dispose`);
-				// clearInterval(interval);
-			},
-			undefined,
-			context.subscriptions
-		)
+			// And schedule updates to the content every second
+			// let interval = setInterval(updateWebview, 1000 * 3);
+			currentPanel.onDidDispose(
+				(event) => {
+					console.log("onDidDispose", event);
+					// When the panel is closed, cancel any future updates to the webview content
+					vscode.window.showInformationMessage(`dispose`);
+					// clearInterval(interval);
+					isCurrentPanelDidDispose = true;
+				},
+				undefined,
+				context.subscriptions
+			)
+		}
+
+
+
 	});
 
 	context.subscriptions.push(disposable);
+
+
 }
 
 // this method is called when your extension is deactivated
 export function deactivate() { }
+
+

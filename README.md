@@ -64,3 +64,26 @@ panel.dispose()//programmatically close webviews
 >should always be complate HTML **NOT** HTML fragments or malformed HTML
 
 **watch out!:** 因为 `panel.webview.html` 就是一个完整的`iframe`，如果给`panel.webview.html`重新赋值，就相当于刷新`iframe`，那么js里的各种状态当然也就荡然无存了。
+
+- 开启调试页面的command panel：`Developer: Open Webview Developer Tools`
+
+```js
+currentPanel = vscode.window.createWebviewPanel(
+    'catCoding',
+    'Cat Coding',
+    columnToShowIn || vscode.ViewColumn.One,
+    {
+        // Enable scripts in the webview这样才能再webView里运行JS
+        enableScripts: true
+    }
+);
+```
+
+- `context.extensionPath`获取当前extension所在文件夹而非workspace
+
+
+```js
+webview.postMessage()
+
+window.addEventListener('message', event => { ... })
+```
