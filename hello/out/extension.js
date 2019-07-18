@@ -90,6 +90,10 @@ function activate(context) {
                     const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
                     currentPanel.title = cat;
                     currentPanel.webview.html = yield getWebviewContent(cat);
+                    setInterval(() => {
+                        const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
+                        currentPanel.webview.postMessage({ command: 'changeImg', cat: { name: cat, src: cats[cat] } });
+                    }, 1000 * 3);
                     const strategyhandleReceiveMessage = {
                         alert: (message) => {
                             vscode.window.showErrorMessage(message.text);

@@ -79,7 +79,6 @@ currentPanel = vscode.window.createWebviewPanel(
 );
 ```
 
-- `context.extensionPath`获取当前extension所在文件夹而非workspace
 
 
 ```js
@@ -87,3 +86,16 @@ webview.postMessage()
 
 window.addEventListener('message', event => { ... })
 ```
+
+- `context.extensionPath`获取当前extension所在文件夹而非workspace
+
+## 安全性
+
+>set `localResourceRoots` to `[vscode.Uri.file(extensionContext.extensionPath)]` or even `[]` to **disallow** access to all local resources.
+
+1. 不需要就不要开`enableScripts: true`
+1. 开了就不给访问所有路径的权限
+1. [内容安全政策](https://developers.google.com/web/fundamentals/security/csp/)
+1. https
+1. Sanitize all user input 防止injections
+

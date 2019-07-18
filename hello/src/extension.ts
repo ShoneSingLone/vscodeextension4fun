@@ -90,7 +90,10 @@ export async function activate(context: vscode.ExtensionContext) {
 				const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
 				currentPanel.title = cat;
 				currentPanel.webview.html = await getWebviewContent(cat);
-
+				setInterval(() => {
+					const cat = iteration++ % 2 ? "Compiling Cat" : "Coding Cat";
+					currentPanel.webview.postMessage({ command: 'changeImg', cat: { name: cat, src: cats[cat] } });
+				}, 1000 * 3);
 				// Handle messages from the webview
 				interface StrategyMap {
 					[prop: string]: (message: any) => any

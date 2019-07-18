@@ -7,8 +7,18 @@ declare var $: any;
 const vscode = acquireVsCodeApi();
 
 window.addEventListener('message', (event: any) => {
-    console.log(event);
-    debugger;
+    let { data } = event;
+    if (data) {
+        console.log(data);
+        let { command } = data;
+        if (command) {
+            if (command === "changeImg") {
+                $('#catImg').attr('src', data.cat.src);
+            }
+        }
+    } else {
+        debugger;
+    }
 })
 
 function postMSG(msg: any) {
