@@ -101,3 +101,8 @@ window.addEventListener('message', event => { ... })
 1. https
 1. Sanitize all user input 防止injections
 
+## publish
+
+> `prepublish`: 在包发布之前运行，也会在npm install安装到本地时运行
+
+extension有依赖，会在安装之后install依赖包
