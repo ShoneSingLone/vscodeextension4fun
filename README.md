@@ -1,5 +1,7 @@
 # 搞个小玩意儿 make a toy
 
+`code --extensions-dir 你的目标文件夹`
+
 - [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
 - [中文辅导理解](https://www.cnblogs.com/caipeiyu/p/5507252.html)
 

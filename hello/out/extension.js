@@ -70,11 +70,15 @@ function activate(context) {
                         // And get the special URI to use with the webview
                         const catGifSrc = onDiskPath.with({ scheme: 'vscode-resource' });
                         console.log('catGifSrc', catGifSrc);
-                        let pugData = cats[cat];
-                        let pugScriptJQuery = yield fs_1.promises.readFile(path_1.resolve(__dirname, "./js/jquery.js"), "utf8");
-                        let pugScriptMain = yield fs_1.promises.readFile(path_1.resolve(__dirname, "./js/main.js"), "utf8");
-                        let pugHTMLString = pug_1.compile(pugContent)({ imgSrc: pugData });
-                        pugHTMLString = pugHTMLString.replace("##jquery##", pugScriptJQuery).replace("##main##", pugScriptMain);
+                        let compileParams = { imgSrc: cats[cat] };
+                        function injectSrcirpt(paramsObj) {
+                            let scriptArray = ['jquery', 'main'];
+                            scriptArray.forEach(name => {
+                                paramsObj[`script_${name}`] = 'vscode-resource:' + path_1.resolve(__dirname, `./js/${name}.js`);
+                            });
+                            return paramsObj;
+                        }
+                        let pugHTMLString = pug_1.compile(pugContent)(injectSrcirpt(compileParams));
                         return pugHTMLString;
                     });
                 }

@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { promises as fs } from 'fs';
 import { resolve, join } from 'path';
 import { compile as PugCompile } from 'pug';
+import {getResource} from './utils'
 
 
 async function getImg(name: string) {
@@ -72,11 +73,17 @@ export async function activate(context: vscode.ExtensionContext) {
 				const catGifSrc = onDiskPath.with({ scheme: 'vscode-resource' });
 				console.log('catGifSrc', catGifSrc);
 
-				let pugData = cats[cat];
-				let pugScriptJQuery = await fs.readFile(resolve(__dirname, "./js/jquery.js"), "utf8");
-				let pugScriptMain = await fs.readFile(resolve(__dirname, "./js/main.js"), "utf8");
-				let pugHTMLString = PugCompile(pugContent)({ imgSrc: pugData })
-				pugHTMLString = pugHTMLString.replace("##jquery##", pugScriptJQuery).replace("##main##", pugScriptMain)
+				let compileParams = { imgSrc: cats[cat] };
+
+				function injectSrcirpt(paramsObj: any) {
+					let scriptArray = ['jquery', 'main'];
+					scriptArray.forEach(name => {
+						paramsObj[`script_${name}`] = 'vscode-resource:' + resolve(__dirname, `./js/${name}.js`);
+					})
+					return paramsObj;
+				}
+
+				let pugHTMLString = PugCompile(pugContent)(injectSrcirpt(compileParams));
 				return pugHTMLString;
 			}
 

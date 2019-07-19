@@ -3,6 +3,7 @@
 	"displayName": "hello",
 	"description": "",
 	"version": "0.0.1",
+	"publisher": "ShoneSingLone",
 	"engines": {
 		"vscode": "^1.36.0"
 	},
@@ -17,7 +18,7 @@
 		"commands": [
 			{
 				"command": "extension.Shone.sing.lone",
-				"title": "Shone"
+				"title": "Shone:test first extension"
 			}
 		]
 	},
@@ -32,11 +33,13 @@
 		"@types/mocha": "^2.2.42",
 		"@types/node": "^10.12.21",
 		"@types/pug": "^2.0.4",
-		"pug": "^2.0.4",
-		"base64-img": "^1.0.4",
 		"tslint": "^5.12.1",
 		"typescript": "^3.3.1",
 		"vscode": "^1.1.28"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"pug": "^2.0.4",
+		"base64-img": "^1.0.4"
+	},
+	"license": "MIT"
 }
