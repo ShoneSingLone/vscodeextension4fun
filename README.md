@@ -106,3 +106,6 @@ window.addEventListener('message', event => { ... })
 > `prepublish`: 在包发布之前运行，也会在npm install安装到本地时运行
 
 extension有依赖，会在安装之后install依赖包
+
+
+vsce package 的时候需要单独一个工作空间

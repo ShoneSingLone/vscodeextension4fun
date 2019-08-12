@@ -1,0 +1,1 @@
+explorer 右键 Create New Component 创建 HTML JS SCSS 三个同名文件

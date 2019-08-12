@@ -1,0 +1,51 @@
+{
+	"name": "generatevuecomponent",
+	"displayName": "generateVueComponent",
+	"description": "generate vue component",
+	"version": "0.0.1",
+	"publisher": "ShoneSingLone",
+	"engines": {
+		"vscode": "^1.37.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onCommand:shone.sing.lone.gnvc"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "shone.sing.lone.gnvc",
+				"title": "Create New Component"
+			}
+		],
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "shone.sing.lone.gnvc",
+					"group": "2_workspace"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"typescript": "^3.3.1",
+		"vscode": "^1.1.28",
+		"tslint": "^5.12.1",
+		"@types/node": "^10.12.21",
+		"@types/mocha": "^2.2.42"
+	},
+	"dependencies": {
+		"@types/fs-extra": "^8.0.0",
+		"fs-extra": "^8.1.0"
+	}
+}
