@@ -5,6 +5,10 @@
 - [Extension Anatomy](https://code.visualstudio.com/api/get-started/extension-anatomy)
 - [中文辅导理解](https://www.cnblogs.com/caipeiyu/p/5507252.html)
 
+## 注意
+
+**vsce package 的时候需要单独一个工作空间**
+
 basic and important
 in package.json  that
 
@@ -21,7 +25,7 @@ in package.json  that
     },
     ...
     /* 注册，可以理解为[【事件】 =>callback function]调用各种API */
-let disposable = vscode.commands.registerCommand('extension.Shone.sing.lone',function(){})
+let disposable = vscode.commands.registerCommand('extension.Shone.sing.lone',function(selectedFile: vscode.Uri){})
 
 ```
 
@@ -108,4 +112,3 @@ window.addEventListener('message', event => { ... })
 extension有依赖，会在安装之后install依赖包
 
 
-vsce package 的时候需要单独一个工作空间
