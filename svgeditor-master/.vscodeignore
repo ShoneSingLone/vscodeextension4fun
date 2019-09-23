@@ -1,0 +1,8 @@
+**/*.ts
+**/tsconfig.json
+**/tslint.json
+**/*.ttf
+**/*.sjsp.js
+out/test/**
+tmp
+*.log
